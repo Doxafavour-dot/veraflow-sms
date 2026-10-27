@@ -12,6 +12,8 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+      - name: Accept Android licences
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
