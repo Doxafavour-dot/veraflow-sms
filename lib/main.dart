@@ -29,6 +29,8 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
   final _user = TextEditingController();
   final _pass = TextEditingController();
   final _senders = TextEditingController();
+  final _skip = TextEditingController();
+  bool _needAmount = true;
   bool _enabled = true, _perm = false, _hasPass = false, _busy = false, _showPass = false;
   int _queue = 0;
   List<dynamic> _log = [];
@@ -58,6 +60,8 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
       _to.text = (m['to'] ?? '') as String;
       _user.text = (m['user'] ?? '') as String;
       _senders.text = (m['senders'] ?? '') as String;
+      _skip.text = (m['skip'] ?? '') as String;
+      _needAmount = (m['needAmount'] ?? true) as bool;
       _enabled = (m['enabled'] ?? true) as bool;
       _hasPass = (m['hasPass'] ?? false) as bool;
       _perm = (m['perm'] ?? false) as bool;
@@ -82,6 +86,8 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
       'user': _user.text,
       'pass': _pass.text,
       'senders': _senders.text,
+      'skip': _skip.text,
+      'needAmount': _needAmount,
       'enabled': _enabled,
     });
     _pass.clear();
@@ -123,6 +129,9 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
           SwitchListTile(title: const Text('Forwarding is on'), value: _enabled, onChanged: (v) => setState(() => _enabled = v)),
           const SizedBox(height: 8),
           TextField(controller: _senders, minLines: 1, maxLines: 3, decoration: const InputDecoration(labelText: 'Senders to forward', helperText: 'Type each sender exactly as Messages shows it, separated by commas. Nothing else is forwarded.', border: OutlineInputBorder())),
+          const SizedBox(height: 12),
+          TextField(controller: _skip, minLines: 1, maxLines: 3, decoration: const InputDecoration(labelText: 'Skip messages containing', helperText: 'Messages with any of these words or phrases are not forwarded. Separate with commas.', border: OutlineInputBorder())),
+          SwitchListTile(contentPadding: EdgeInsets.zero, title: const Text('Only forward messages with an amount of money'), subtitle: const Text('Skips promos, news and codes that mention no amount.'), value: _needAmount, onChanged: (v) => setState(() => _needAmount = v)),
           const SizedBox(height: 12),
           TextField(controller: _to, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'Send to (your email)', border: OutlineInputBorder())),
           const SizedBox(height: 12),

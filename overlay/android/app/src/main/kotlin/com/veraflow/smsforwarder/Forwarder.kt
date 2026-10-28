@@ -36,7 +36,7 @@ object Forwarder {
             val item = q.getJSONObject(i)
             val sender = item.getString("sender")
             try {
-                val body = item.getString("body") + "\n\nSMS received: " + fmt.format(Date(item.getLong("ts")))
+                val body = "SMS from " + sender + ":\n" + item.getString("body") + "\n\nSMS received: " + fmt.format(Date(item.getLong("ts")))
                 mail(c, Store.get(c, "to"), "SMS from $sender", body)
                 Store.log(c, sender, true, "Sent")
             } catch (e: Exception) {

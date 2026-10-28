@@ -17,6 +17,8 @@ class MainActivity : FlutterActivity() {
                     "to" to Store.get(c, "to"),
                     "user" to Store.get(c, "user"),
                     "senders" to Store.get(c, "senders"),
+                    "skip" to Store.get(c, "skip", Store.DEFAULT_SKIP),
+                    "needAmount" to Store.needAmount(c),
                     "enabled" to Store.enabled(c),
                     "hasPass" to Store.get(c, "pass").isNotBlank(),
                     "perm" to hasSmsPermission(),
@@ -27,6 +29,8 @@ class MainActivity : FlutterActivity() {
                     Store.put(c, "to", (call.argument<String>("to") ?: "").trim())
                     Store.put(c, "user", (call.argument<String>("user") ?: "").trim())
                     Store.put(c, "senders", (call.argument<String>("senders") ?: "").trim())
+                    Store.put(c, "skip", (call.argument<String>("skip") ?: "").trim())
+                    Store.setNeedAmount(c, call.argument<Boolean>("needAmount") ?: true)
                     val pass = (call.argument<String>("pass") ?: "").trim()
                     if (pass.isNotEmpty()) Store.put(c, "pass", pass)
                     Store.setEnabled(c, call.argument<Boolean>("enabled") ?: true)

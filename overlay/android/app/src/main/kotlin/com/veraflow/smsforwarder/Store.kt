@@ -25,6 +25,25 @@ object Store {
         return senders(c).any { s == it || s.contains(it) }
     }
 
+    const val DEFAULT_SKIP = "otp is, otp:, otp for, verification code, one-time password, one time password, passcode"
+
+    fun skipWords(c: Context): List<String> =
+        get(c, "skip", DEFAULT_SKIP).split(',', ';', '\n').map { it.trim() }.filter { it.isNotEmpty() }
+
+    fun needAmount(c: Context) = p(c).getBoolean("needAmount", true)
+    fun setNeedAmount(c: Context, v: Boolean) { p(c).edit().putBoolean("needAmount", v).apply() }
+
+    private val amountRe = Regex("(gh[sc₵¢]|₵|¢|cedis?|usd|eur|gbp|[$€£])\\s?\\d|\\d\\s?(gh[sc₵¢]|₵|¢|cedis?|usd|eur|gbp)", RegexOption.IGNORE_CASE)
+
+    /** Decides from the message text. Messages with a skip word, or (when asked) with no money amount, are not forwarded. */
+    fun bodyAllowed(c: Context, body: String): Boolean {
+        for (w in skipWords(c)) {
+            if (Regex("(?<![\\p{L}\\p{N}])" + Regex.escape(w) + "(?![\\p{L}\\p{N}])", RegexOption.IGNORE_CASE).containsMatchIn(body)) return false
+        }
+        if (needAmount(c) && !amountRe.containsMatchIn(body)) return false
+        return true
+    }
+
     fun enqueue(c: Context, sender: String, body: String, ts: Long) = synchronized(lock) {
         val q = JSONArray(get(c, "queue", "[]"))
         q.put(JSONObject().put("id", "$ts-${q.length()}-${sender.hashCode()}").put("sender", sender).put("body", body).put("ts", ts).put("tries", 0))

@@ -13,15 +13,14 @@ class SmsReceiver : BroadcastReceiver() {
         val msgs = Telephony.Sms.Intents.getMessagesFromIntent(intent) ?: return
         // Long messages arrive in parts: join the parts that share a sender.
         val bySender = LinkedHashMap<String, StringBuilder>()
-        var ts = System.currentTimeMillis()
+        val ts = System.currentTimeMillis() // the phone's own clock: the network's time stamp can be hours out
         for (m in msgs) {
             val from = m.originatingAddress ?: continue
             bySender.getOrPut(from) { StringBuilder() }.append(m.messageBody ?: "")
-            if (m.timestampMillis > 0) ts = m.timestampMillis
         }
         var any = false
         for ((from, text) in bySender) {
-            if (Store.matches(context, from)) { Store.enqueue(context, from, text.toString(), ts); any = true }
+            if (Store.matches(context, from) && Store.bodyAllowed(context, text.toString())) { Store.enqueue(context, from, text.toString(), ts); any = true }
         }
         if (any) Forwarder.schedule(context)
     }
